@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUXE - Premium Shopping</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>LUXE</h1>
+                <p>Premium Shopping Experience</p>
+            </div>
+            <div class="header-controls">
+                <button id="voice-btn" class="voice-btn">
+                    <i class="fas fa-microphone"></i> Voice Shop
+                </button>
+                <div class="cart-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-count">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="voice-panel" id="voice-panel">
+        <div class="voice-container">
+            <div class="voice-header">
+                <h3>Voice Shopping Assistant</h3>
+                <button id="close-voice">&times;</button>
+            </div>
+            <div class="voice-status">
+                <p id="voice-status-text">Click the microphone to start</p>
+                <div class="voice-visualizer">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+            </div>
+            <button id="start-listening" class="mic-btn">
+                <i class="fas fa-microphone"></i>
+            </button>
+            <div class="voice-commands">
+                <h4>Try saying:</h4>
+                <ul>
+                    <li>"Add smartphone to cart"</li>
+                    <li>"Remove laptop from cart"</li>
+                    <li>"What's in my cart?"</li>
+                    <li>"Checkout"</li>
+                </ul>
+            </div>
+            <div class="command-log" id="command-log"></div>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <div class="container">
+            <aside class="sidebar">
+                <div class="filter-section">
+                    <h3>Filter Products</h3>
+                    <select id="category-filter" class="filter-select">
+                        <option value="all">All Categories</option>
+                        <option value="tech">Tech Gadgets</option>
+                        <option value="luxury">Luxury Items</option>
+                        <option value="lifestyle">Lifestyle</option>
+                    </select>
+                </div>
+                <div class="help-section">
+                    <h3>Voice Shopping Help</h3>
+                    <p>Click the "Voice Shop" button to add items to your cart using voice commands.</p>
+                    <button id="help-btn" class="help-btn">Show Commands</button>
+                </div>
+            </aside>
+
+            <section class="products">
+                <h2>Our Premium Collection</h2>
+                <div class="product-grid" id="product-grid">
+                    <!-- Products will be loaded here -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div class="cart-modal" id="cart-modal">
+        <div class="cart-container">
+            <div class="cart-header">
+                <h3>Your LUXE Cart</h3>
+                <button id="close-cart">&times;</button>
+            </div>
+            <div class="cart-items" id="cart-items">
+                <!-- Cart items will be loaded here -->
+            </div>
+            <div class="cart-total">
+                <p>Total: <span id="cart-total-amount">₹0</span></p>
+                <button id="checkout-btn" class="checkout-btn">Proceed to Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+[
+    {
+        "id": 1,
+        "name": "smartphone pro",
+        "price": 89900,
+        "category": "tech",
+        "description": "Premium smartphone with advanced features",
+        "image": "/images/smartphone.jpeg"
+    },
+    {
+        "id": 2,
+        "name": "luxury laptop",
+        "price": 149900,
+        "category": "tech",
+        "description": "Ultra-thin laptop with high performance",
+        "image": "C:/Users/chhav/OneDrive/Desktop/walmart/check/api/laptop.jpeg"
+    },
+    {
+        "id": 3,
+        "name": "noise-canceling headphones",
+        "price": 28900,
+        "category": "tech",
+        "description": "Premium noise-canceling headphones",
+        "image": "headphones.jpeg"
+    },
+    {
+        "id": 4,
+        "name": "premium whiskey",
+        "price": 12500,
+        "category": "luxury",
+        "description": "Aged premium whiskey",
+        "image": "wiskey.jpeg"
+    },
+    {
+        "id": 5,
+        "name": "imported champagne",
+        "price": 8500,
+        "category": "luxury",
+        "description": "Finest imported champagne",
+        "image": "Champagne-Bottle-.webp"
+    },
+    {
+        "id": 6,
+        "name": "designer handbag",
+        "price": 75900,
+        "category": "luxury",
+        "description": "Luxury designer handbag",
+        "image": "handbag.avif"
+    },
+    {
+        "id": 7,
+        "name": "organic matcha set",
+        "price": 2500,
+        "category": "lifestyle",
+        "description": "Premium organic matcha tea set",
+        "image": "matcha.jpeg"
+    },
+    {
+        "id": 8,
+        "name": "artisan coffee beans",
+        "price": 1800,
+        "category": "lifestyle",
+        "description": "Specialty artisan coffee beans",
+        "image": "coffee.webp"
+    }
+]
