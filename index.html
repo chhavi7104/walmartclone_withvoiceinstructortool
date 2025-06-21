@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vocal cart- Premium Shopping</title>
+    <title>Vocal Cart- Premium Shopping</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Knewave&display=swap" rel="stylesheet">
+     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header class="header">
         <div class="container">
             <div class="logo">
-                <h1>Vocal cart</h1>
+                <h1>Vocal Cart</h1>
                 <p>Premium Shopping Experience</p>
             </div>
             <div class="header-controls">
@@ -25,7 +27,87 @@
             </div>
         </div>
     </header>
+      <section class="hero-banner">
+        <div class="container">
+            <div class="hero-content">
+                <h2>Premium Tech & Luxury</h2>
+                <p>Experience shopping like never before with our exclusive collection</p>
+                <button class="shop-now-btn">Shop Now</button>
+            </div>
+        </div>
+    </section>
 
+    <!-- Promotional Sections -->
+    <section class="promo-section">
+        <div class="promo-card">
+            <h3>Smartphones & Gadgets</h3>
+            <p>Latest tech at premium prices</p>
+            <button class="shop-now-btn">Shop Now</button>
+        </div>
+        <div class="promo-card">
+            <h3>Luxury Items</h3>
+            <p>Exclusive high-end products</p>
+            <button class="shop-now-btn">Shop Now</button>
+        </div>
+    </section>
+
+    <!-- Featured Categories -->
+   <section class="featured-categories">
+    <div class="container">
+        <h2 class="section-title">Shop by Category</h2>
+        <div class="category-grid">
+            <div class="category-card">
+                <div class="category-image tech-category"></div>
+                <div class="category-content">
+                    <h3>Tech Gadgets</h3>
+                    <p>Cutting-edge technology for modern living</p>
+                    <button class="shop-now-btn">Shop Now</button>
+                </div>
+            </div>
+            <div class="category-card">
+                <div class="category-image luxury-category"></div>
+                <div class="category-content">
+                    <h3>Luxury Items</h3>
+                    <p>Premium quality for the discerning buyer</p>
+                    <button class="shop-now-btn">Shop Now</button>
+                </div>
+            </div>
+            <div class="category-card">
+                <div class="category-image lifestyle-category"></div>
+                <div class="category-content">
+                    <h3>Lifestyle</h3>
+                    <p>Enhance your everyday experiences</p>
+                    <button class="shop-now-btn">Shop Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <!-- Special Offers -->
+    <section class="special-offers">
+        <div class="container">
+            <h2 class="section-title">Special Offers</h2>
+            <div class="offer-grid">
+                <div class="offer-card1">
+                    <h3>Up to 30% Off</h3>
+                    <p>Select premium items</p>
+                    <button class="shop-now-btn">Shop Now</button>
+                </div>
+                <div class="offer-card2">
+                    <h3>New Arrivals</h3>
+                    <p>Fresh from our collection</p>
+                    <button class="shop-now-btn">Shop Now</button>
+                </div>
+                <div class="offer-card3">
+                    <h3>Summer Essentials</h3>
+                    <p>From $15</p>
+                    <button class="shop-now-btn">Shop Now</button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Voice Shopping Assistant -->
     <div class="voice-panel" id="voice-panel">
         <div class="voice-container">
             <div class="voice-header">
@@ -101,6 +183,224 @@
             </div>
         </div>
     </div>
+    <!-- Payment Modal -->
+<div class="payment-modal" id="payment-modal">
+    <div class="payment-container">
+        <div class="payment-header">
+            <h3>Secure Checkout</h3>
+            <button id="close-payment">&times;</button>
+        </div>
+        <div class="payment-body">
+            <div class="payment-methods">
+                <div class="method active" data-method="card">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Credit/Debit Card</span>
+                </div>
+                <div class="method" data-method="paypal">
+                    <i class="fab fa-paypal"></i>
+                    <span>PayPal</span>
+                </div>
+                <div class="method" data-method="upi">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>UPI</span>
+                </div>
+            </div>
+            
+            <!-- Card Payment Form -->
+            <div class="payment-form" id="card-form">
+                <div class="form-group">
+                    <label for="card-number">Card Number</label>
+                    <input type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19" pattern="[0-9]{16}">
+                    <div class="card-icons">
+                        <i class="fab fa-cc-visa"></i>
+                        <i class="fab fa-cc-mastercard"></i>
+                        <i class="fab fa-cc-amex"></i>
+                        <i class="fab fa-cc-discover"></i>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="expiry-date">Expiry Date</label>
+                        <input type="text" id="expiry-date" placeholder="MM/YY" maxlength="5" pattern="(0[1-9]|1[0-2])\/[0-9]{2}">
+                    </div>
+                    <div class="form-group">
+                        <label for="cvv">CVV</label>
+                        <input type="password" id="cvv" placeholder="•••" maxlength="3" pattern="[0-9]{3}">
+                        <i class="fas fa-question-circle" title="3-digit code on back of card"></i>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="card-name">Name on Card</label>
+                    <input type="text" id="card-name" placeholder="John Doe">
+                </div>
+                <div class="form-group checkbox">
+                    <input type="checkbox" id="save-card" checked>
+                    <label for="save-card">Save card for future payments</label>
+                </div>
+            </div>
+            
+            <!-- PayPal Form -->
+            <div class="payment-form hidden" id="paypal-form">
+                <div class="paypal-info">
+                    <p>You will be redirected to PayPal to complete your payment securely</p>
+                    <div class="paypal-logo">
+                        <i class="fab fa-paypal"></i>
+                    </div>
+                    <p class="small-text">By clicking below, you agree to PayPal's Terms and Conditions</p>
+                </div>
+            </div>
+            
+            <!-- UPI Form -->
+            <div class="payment-form hidden" id="upi-form">
+                <div class="form-group">
+                    <label for="upi-id">UPI ID</label>
+                    <input type="text" id="upi-id" placeholder="yourname@upi" pattern=".+@.+\..+">
+                </div>
+                <div class="upi-apps">
+                    <div class="upi-app"><img src="assets/gpay.png" alt="Google Pay"></div>
+                    <div class="upi-app"><img src="assets/phonepe.png" alt="PhonePe"></div>
+                    <div class="upi-app"><img src="assets/paytm.png" alt="Paytm"></div>
+                    <div class="upi-app"><img src="assets/bhim.png" alt="BHIM"></div>
+                </div>
+                <p class="upi-note">Complete payment using your preferred UPI app</p>
+            </div>
+            
+            <!-- Order Summary -->
+            <div class="payment-summary">
+                <h4>Order Summary</h4>
+                <div class="summary-row">
+                    <span>Subtotal (${cart.length} items)</span>
+                    <span id="payment-subtotal">₹0</span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span>FREE</span>
+                </div>
+                <div class="summary-row">
+                    <span>Tax</span>
+                    <span id="payment-tax">₹0</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total</span>
+                    <span id="payment-total">₹0</span>
+                </div>
+            </div>
+            
+            <button id="pay-now-btn" class="pay-now-btn">
+                <i class="fas fa-lock"></i> Pay Securely
+            </button>
+            <p class="security-note">
+                <i class="fas fa-shield-alt"></i> Your payment is secured with 256-bit SSL encryption
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="success-modal" id="success-modal">
+    <div class="success-container">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3>Payment Successful!</h3>
+        <p>Thank you for your order</p>
+        
+        <div class="success-details">
+            <div class="detail-item">
+                <span class="detail-label">Order ID:</span>
+                <span class="detail-value" id="order-id">VC-${Math.floor(100000 + Math.random() * 900000)}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Amount Paid:</span>
+                <span class="detail-value" id="amount-paid">₹0</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Payment Method:</span>
+                <span class="detail-value" id="payment-method">Credit Card</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Estimated Delivery:</span>
+                <span class="detail-value" id="delivery-date">${new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toDateString()}</span>
+            </div>
+        </div>
+        
+        <div class="success-actions">
+            <button id="view-order" class="secondary-btn">
+                <i class="fas fa-receipt"></i> View Order Details
+            </button>
+            <button id="continue-shopping" class="primary-btn">
+                <i class="fas fa-shopping-bag"></i> Continue Shopping
+            </button>
+        </div>
+        
+        <div class="success-footer">
+            <p>A confirmation has been sent to your email</p>
+            <p>Need help? <a href="#">Contact Support</a></p>
+        </div>
+    </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <!-- About Section -->
+      <div class="footer-section">
+        <h3 class="footer-heading">Vocal Cart</h3>
+        <p class="footer-text">Premium shopping experience with voice-enabled technology.</p>
+        <div class="social-links">
+          <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="footer-section">
+        <h3 class="footer-heading">Quick Links</h3>
+        <ul class="footer-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="#">Shop</a></li>
+          <li><a href="#">New Arrivals</a></li>
+          <li><a href="#">Featured Products</a></li>
+          <li><a href="#">Special Offers</a></li>
+        </ul>
+      </div>
+
+      <!-- Customer Service -->
+      <div class="footer-section">
+        <h3 class="footer-heading">Customer Service</h3>
+        <ul class="footer-links">
+          <li><a href="#">Contact Us</a></li>
+          <li><a href="#">FAQs</a></li>
+          <li><a href="#">Shipping Policy</a></li>
+          <li><a href="#">Returns & Exchanges</a></li>
+          <li><a href="#">Payment Options</a></li>
+        </ul>
+      </div>
+
+      <!-- Newsletter -->
+      <div class="footer-section">
+        <h3 class="footer-heading">Newsletter</h3>
+        <p class="footer-text">Subscribe to get updates on new products and special offers.</p>
+        <form class="newsletter-form">
+          <input type="email" placeholder="Your email address" required>
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="copyright">
+        &copy; 2023 Vocal Cart. All rights reserved.
+      </div>
+      <div class="legal-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Cookie Policy</a>
+      </div>
+    </div>
+  </div>
+</footer>
 
     <script src="script.js"></script>
 </body>

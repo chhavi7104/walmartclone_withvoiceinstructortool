@@ -761,10 +761,236 @@ function animateVisualizer() {
     
     setTimeout(animateVisualizer, 100);
 }
+function animateOnScroll() {
+    const elements = document.querySelectorAll('.promo-card, .category-card, .offer-card');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, { threshold: 0.1 });
+    
+    elements.forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = 'all 0.6s ease';
+        observer.observe(el);
+    });
+}
 
+// Smooth scrolling for navigation
+function setupSmoothScrolling() {
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+}
+
+// Initialize animations
+document.addEventListener('DOMContentLoaded', () => {
+    animateOnScroll();
+    setupSmoothScrolling();
+    
+    // Add hover effect to shop now buttons
+    const shopButtons = document.querySelectorAll('.shop-now-btn');
+    shopButtons.forEach(button => {
+        button.addEventListener('mouseenter', () => {
+            button.style.transform = 'translateY(-2px) scale(1.05)';
+        });
+        button.addEventListener('mouseleave', () => {
+            button.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+});
+
+// Header scroll effect
+window.addEventListener('scroll', () => {
+    const header = document.querySelector('.header');
+    if (window.scrollY > 100) {
+        header.style.background = 'rgba(44, 62, 80, 0.95)';
+        header.style.padding = '15px 0';
+    } else {
+        header.style.background = 'var(--primary-color)';
+        header.style.padding = '20px 0';
+    }
+});
 // Stop visualizer animation
 function stopVisualizer() {
     for (const bar of visualizerBars) {
         bar.style.height = '20%';
     }
 }
+function openPaymentPortal() {
+    // First check if cart is empty
+    if (cart.length === 0) {
+        showFeedback('Your cart is empty');
+        return;
+    }
+    
+    // Calculate total amount
+    const total = cart.reduce((sum, item) => {
+        const product = products.find(p => p.id === item.id);
+        return sum + (product ? product.price * item.quantity : 0);
+    }, 0);
+    
+    // Update payment portal with cart total
+    document.getElementById('payment-subtotal').textContent = `₹${total.toLocaleString()}`;
+    document.getElementById('payment-total').textContent = `₹${total.toLocaleString()}`;
+    
+    // Show payment modal
+    document.getElementById('payment-modal').style.display = 'flex';
+    
+    // Optional: Close cart modal if open
+    document.getElementById('cart-modal').style.display = 'none';
+}
+// Close payment modal
+// Payment Portal Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // DOM Elements
+    const paymentModal = document.getElementById('payment-modal');
+    const closePayment = document.getElementById('close-payment');
+    const payNowBtn = document.getElementById('pay-now-btn');
+    const successModal = document.getElementById('success-modal');
+    const continueBtn = document.getElementById('continue-shopping');
+    const viewOrderBtn = document.getElementById('view-order');
+    const paymentMethods = document.querySelectorAll('.method');
+    const paymentForms = document.querySelectorAll('.payment-form');
+    
+    // Format card number input (keeps the formatting but won't validate)
+    const cardNumberInput = document.getElementById('card-number');
+    if (cardNumberInput) {
+        cardNumberInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s+/g, '');
+            if (value.length > 0) {
+                value = value.match(new RegExp('.{1,4}', 'g')).join(' ');
+            }
+            e.target.value = value;
+        });
+    }
+    
+    // Format expiry date input (keeps the formatting but won't validate)
+    const expiryDateInput = document.getElementById('expiry-date');
+    if (expiryDateInput) {
+        expiryDateInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            e.target.value = value;
+        });
+    }
+    
+    // Show payment modal when checkout is clicked
+    document.getElementById('checkout-btn')?.addEventListener('click', function() {
+        // Calculate and display totals
+        const subtotal = cart.reduce((sum, item) => {
+            const product = products.find(p => p.id === item.id);
+            return sum + (product ? product.price * item.quantity : 0);
+        }, 0);
+        
+        const tax = subtotal * 0.18; // 18% tax
+        const total = subtotal + tax;
+        
+        document.getElementById('payment-subtotal').textContent = `₹${subtotal.toLocaleString()}`;
+        document.getElementById('payment-tax').textContent = `₹${tax.toLocaleString()}`;
+        document.getElementById('payment-total').textContent = `₹${total.toLocaleString()}`;
+        
+        paymentModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+    });
+    
+    // Close payment modal
+    closePayment?.addEventListener('click', function() {
+        paymentModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    });
+    
+    // Payment method selection
+    paymentMethods.forEach(method => {
+        method.addEventListener('click', function() {
+            // Remove active class from all methods
+            paymentMethods.forEach(m => m.classList.remove('active'));
+            // Add active class to clicked method
+            this.classList.add('active');
+            
+            // Hide all forms
+            paymentForms.forEach(form => form.classList.add('hidden'));
+            // Show selected form
+            const methodType = this.getAttribute('data-method');
+            document.getElementById(`${methodType}-form`).classList.remove('hidden');
+        });
+    });
+    
+    // Process payment - modified to always show success
+    payNowBtn?.addEventListener('click', function() {
+        // Show loading state
+        payNowBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Payment';
+        payNowBtn.disabled = true;
+        
+        // Simulate payment processing (no validation)
+        setTimeout(() => {
+            // Hide payment modal and show success
+            paymentModal.style.display = 'none';
+            
+            // Set success details
+            const total = document.getElementById('payment-total').textContent;
+            document.getElementById('amount-paid').textContent = total;
+            
+            // Get payment method name
+            const paymentMethod = document.querySelector('.method.active span').textContent;
+            document.getElementById('payment-method').textContent = paymentMethod;
+            
+            // Generate random order ID
+            const orderId = 'VC-' + Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('order-id').textContent = orderId;
+            
+            // Calculate delivery date (3-5 days from now)
+            const deliveryDate = new Date();
+            deliveryDate.setDate(deliveryDate.getDate() + 3 + Math.floor(Math.random() * 3));
+            document.getElementById('delivery-date').textContent = deliveryDate.toDateString();
+            
+            // Show success modal
+            successModal.style.display = 'flex';
+            
+            // Reset pay now button
+            payNowBtn.innerHTML = '<i class="fas fa-lock"></i> Pay Securely';
+            payNowBtn.disabled = false;
+            
+            // Clear cart after successful payment
+            cart = [];
+            updateCartCount();
+            saveCart();
+        }, 1500); // 1.5 second delay to simulate processing
+    });
+    
+    // Continue shopping
+    continueBtn?.addEventListener('click', function() {
+        successModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    });
+    
+    // View order details
+    viewOrderBtn?.addEventListener('click', function() {
+        // In a real app, this would redirect to order details page
+        alert('Order details would be shown here');
+    });
+    
+    // Close modals when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target === paymentModal) {
+            paymentModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        if (event.target === successModal) {
+            successModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    });
+});
