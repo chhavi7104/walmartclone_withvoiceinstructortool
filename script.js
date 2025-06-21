@@ -6,7 +6,7 @@ const products = [
         price: 89900,
         category: "tech",
         description: "Premium smartphone with advanced features",
-        image: "smartphone.jpg"
+        image: "assets/products/smartphone.png"
     },
     {
         id: 2,
@@ -14,7 +14,7 @@ const products = [
         price: 149900,
         category: "tech",
         description: "Ultra-thin laptop with high performance",
-        image: "laptop.jpg"
+        image: "assets/products/laptop.png"
     },
     {
         id: 3,
@@ -22,7 +22,7 @@ const products = [
         price: 28900,
         category: "tech",
         description: "Premium noise-canceling headphones",
-        image: "headphones.jpg"
+        image: "assets/products/headphone.png"
     },
     {
         id: 4,
@@ -30,7 +30,7 @@ const products = [
         price: 12500,
         category: "luxury",
         description: "Aged premium whiskey",
-        image: "whiskey.jpg"
+        image: "assets/products/whiskey.png"
     },
     {
         id: 5,
@@ -38,7 +38,7 @@ const products = [
         price: 8500,
         category: "luxury",
         description: "Finest imported champagne",
-        image: "champagne.jpg"
+        image: "assets/products/Champagne.png"
     },
     {
         id: 6,
@@ -46,7 +46,7 @@ const products = [
         price: 75900,
         category: "luxury",
         description: "Luxury designer handbag",
-        image: "handbag.jpg"
+        image: "assets/products/handbag.png"
     },
     {
         id: 7,
@@ -54,7 +54,7 @@ const products = [
         price: 2500,
         category: "lifestyle",
         description: "Premium organic matcha tea set",
-        image: "matcha.jpg"
+        image: "assets/products/matcha.webp"
     },
     {
         id: 8,
@@ -62,7 +62,7 @@ const products = [
         price: 1800,
         category: "lifestyle",
         description: "Specialty artisan coffee beans",
-        image: "coffee.jpg"
+        image: "assets/products/coffee.png"
     }
 ];
 
@@ -141,7 +141,7 @@ function loadProducts() {
         productCard.className = 'product-card';
         productCard.innerHTML = `
             <div class="product-image">
-                <img src="assets/${product.image}" alt="${product.name}">
+                <img src="${product.image}" alt="${product.name}">
             </div>
             <div class="product-info">
                 <h3 class="product-title">${formatProductName(product.name)}</h3>
@@ -271,7 +271,7 @@ function renderCartItems() {
         cartItem.className = 'cart-item';
         cartItem.innerHTML = `
             <div class="cart-item-image">
-                <img src="assets/${product.image}" alt="${product.name}">
+                <img src="${product.image}" alt="${product.name}">
             </div>
             <div class="cart-item-details">
                 <h4 class="cart-item-title">${formatProductName(product.name)}</h4>

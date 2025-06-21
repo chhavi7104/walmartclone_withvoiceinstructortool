@@ -1,6 +1,6 @@
 /* Global Styles */
 :root {
-    --primary-color: #2a5c84;
+    --primary-color:black;
     --secondary-color: #f5f5f5;
     --accent-color: #d4af37;
     --text-color: #333;
@@ -32,7 +32,7 @@ body {
 
 /* Header Styles */
 .header {
-    background-color: white;
+    background-color: rgb(3, 111, 220);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     padding: 20px 0;
     position: sticky;
@@ -47,13 +47,13 @@ body {
 }
 
 .logo h1 {
-    color: var(--primary-color);
+    color:#fcf953;
     font-size: 28px;
     font-weight: bold;
 }
 
 .logo p {
-    color: var(--light-text);
+    color: white;
     font-size: 12px;
     margin-top: -5px;
 }
@@ -65,8 +65,9 @@ body {
 }
 
 .voice-btn {
-    background-color: var(--primary-color);
-    color: white;
+    background-color: #fcf953;
+    border: #333 solid 2px;
+    color: black;
     border: none;
     padding: 10px 20px;
     border-radius: 5px;
@@ -79,7 +80,7 @@ body {
 }
 
 .voice-btn:hover {
-    background-color: #1d4568;
+    background-color: white;
     transform: translateY(-2px);
 }
 
@@ -87,15 +88,15 @@ body {
     position: relative;
     cursor: pointer;
     font-size: 22px;
-    color: var(--primary-color);
+    color: white;
 }
 
 .cart-icon span {
     position: absolute;
     top: -10px;
     right: -10px;
-    background-color: var(--accent-color);
-    color: white;
+    background-color: #f9f23a;
+    color: rgb(0, 0, 0);
     border-radius: 50%;
     width: 20px;
     height: 20px;

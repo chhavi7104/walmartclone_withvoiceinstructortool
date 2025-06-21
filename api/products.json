@@ -5,7 +5,7 @@
         "price": 89900,
         "category": "tech",
         "description": "Premium smartphone with advanced features",
-        "image": "/images/smartphone.jpeg"
+        "image": "assets/products/smartphone.png"
     },
     {
         "id": 2,
@@ -13,7 +13,7 @@
         "price": 149900,
         "category": "tech",
         "description": "Ultra-thin laptop with high performance",
-        "image": "C:/Users/chhav/OneDrive/Desktop/walmart/check/api/laptop.jpeg"
+        "image": "assets/products/laptop.png"
     },
     {
         "id": 3,
@@ -21,7 +21,7 @@
         "price": 28900,
         "category": "tech",
         "description": "Premium noise-canceling headphones",
-        "image": "headphones.jpeg"
+        "image": "assets/products/headphone.png"
     },
     {
         "id": 4,
@@ -29,7 +29,7 @@
         "price": 12500,
         "category": "luxury",
         "description": "Aged premium whiskey",
-        "image": "wiskey.jpeg"
+        "image": "assets/products/whiskey.png"
     },
     {
         "id": 5,
@@ -37,7 +37,7 @@
         "price": 8500,
         "category": "luxury",
         "description": "Finest imported champagne",
-        "image": "Champagne-Bottle-.webp"
+        "image": "assets/products/Champagne.png"
     },
     {
         "id": 6,
@@ -45,7 +45,7 @@
         "price": 75900,
         "category": "luxury",
         "description": "Luxury designer handbag",
-        "image": "handbag.avif"
+        "image": "assets/products/handbag.png"
     },
     {
         "id": 7,
@@ -53,7 +53,7 @@
         "price": 2500,
         "category": "lifestyle",
         "description": "Premium organic matcha tea set",
-        "image": "matcha.jpeg"
+        "image": "assets/products/matcha.webp"
     },
     {
         "id": 8,
@@ -61,6 +61,6 @@
         "price": 1800,
         "category": "lifestyle",
         "description": "Specialty artisan coffee beans",
-        "image": "coffee.webp"
+        "image": "assets/products/coffee.png"
     }
 ]
