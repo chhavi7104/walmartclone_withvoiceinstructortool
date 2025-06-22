@@ -62,5 +62,13 @@
         "category": "lifestyle",
         "description": "Specialty artisan coffee beans",
         "image": "assets/products/coffee.png"
+    },
+     {
+        "id": 5,
+        "name": "imported champagne",
+        "price": 8500,
+        "category": "luxury",
+        "description": "Finest imported champagne",
+        "image": "assets/products/Champagne.png"
     }
 ]

@@ -63,7 +63,15 @@ const products = [
         category: "lifestyle",
         description: "Specialty artisan coffee beans",
         image: "assets/products/coffee.png"
-    }
+    },
+        {
+        id: 5,
+        name: "imported champagne",
+        price: 8500,
+        category: "luxury",
+        description: "Finest imported champagne",
+        image: "assets/products/Champagne.png"
+    },
 ];
 
 // Shopping cart
@@ -696,15 +704,32 @@ function checkoutByVoice() {
         speakResponse('Cannot checkout - your cart is empty');
         return;
     }
-    
-    const total = cart.reduce((sum, item) => {
+    const subtotal = cart.reduce((sum, item) => {
         const product = products.find(p => p.id === item.id);
         return sum + (product ? product.price * item.quantity : 0);
     }, 0);
     
-    speakResponse(`Your total is ₹${total.toLocaleString()}. Proceeding to checkout`);
+    const tax = subtotal * 0.18; // 18% tax
+    const total = subtotal + tax;
+    
+    // Update payment portal with cart totals
+    document.getElementById('payment-subtotal').textContent = `₹${subtotal.toLocaleString()}`;
+    document.getElementById('payment-tax').textContent = `₹${tax.toLocaleString()}`;
+    document.getElementById('payment-total').textContent = `₹${total.toLocaleString()}`;
+    
+    // Speak confirmation
+    speakResponse(`Your total is ₹${total.toLocaleString()}. Opening payment portal`);
     logCommand('Checkout initiated by voice');
     
+    // Open payment modal
+    document.getElementById('payment-modal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    
+    // Close cart modal if open
+    const cartModal = document.getElementById('cart-modal');
+    if (cartModal) {
+        cartModal.style.display = 'none';
+    }
     // Clear cart after checkout
     setTimeout(() => {
         cart = [];
@@ -895,7 +920,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return sum + (product ? product.price * item.quantity : 0);
         }, 0);
         
-        const tax = subtotal * 0.18; // 18% tax
+        const tax = subtotal * 0.02; // 2% tax
         const total = subtotal + tax;
         
         document.getElementById('payment-subtotal').textContent = `₹${subtotal.toLocaleString()}`;
