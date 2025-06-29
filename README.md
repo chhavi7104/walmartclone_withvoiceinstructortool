@@ -43,11 +43,11 @@
 
 ## 📦 Getting Started
 
+Visit Site:
+https://chhavi7104.github.io/walmartclone_withvoiceinstructortool/
+
 Clone the repo:
 
 ```bash
 git clone https://github.com/chhavi7104/walmartclone_withvoiceinstructortool.git
 cd walmartclone_withvoiceinstructortool
-
-
-## Visit site
