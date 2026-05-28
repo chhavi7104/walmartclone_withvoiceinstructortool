@@ -1,4 +1,5 @@
  # 🛒 VocalCart
+ 
 **VocalCart** is an innovative voice-powered e-commerce web application that lets users search products, add them to cart, and complete checkout—entirely using voice commands. It's designed to bring hands-free convenience and accessibility to online shopping.
 
 ---
