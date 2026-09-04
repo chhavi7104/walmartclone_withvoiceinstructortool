@@ -1,78 +1,33 @@
-// Product data (would normally come from an API)
-const products = [
-    {
-        id: 1,
-        name: "smartphone pro",
-        price: 89900,
-        category: "tech",
-        description: "Premium smartphone with advanced features",
-        image: "assets/products/smartphone.png"
-    },
-    {
-        id: 2,
-        name: "luxury laptop",
-        price: 149900,
-        category: "tech",
-        description: "Ultra-thin laptop with high performance",
-        image: "assets/products/laptop.png"
-    },
-    {
-        id: 3,
-        name: "noise-canceling headphones",
-        price: 28900,
-        category: "tech",
-        description: "Premium noise-canceling headphones",
-        image: "assets/products/headphone.png"
-    },
-    {
-        id: 4,
-        name: "premium whiskey",
-        price: 12500,
-        category: "luxury",
-        description: "Aged premium whiskey",
-        image: "assets/products/whiskey.png"
-    },
-    {
-        id: 5,
-        name: "imported champagne",
-        price: 8500,
-        category: "luxury",
-        description: "Finest imported champagne",
-        image: "assets/products/Champagne.png"
-    },
-    {
-        id: 6,
-        name: "designer handbag",
-        price: 75900,
-        category: "luxury",
-        description: "Luxury designer handbag",
-        image: "assets/products/handbag.png"
-    },
-    {
-        id: 7,
-        name: "organic matcha set",
-        price: 2500,
-        category: "lifestyle",
-        description: "Premium organic matcha tea set",
-        image: "assets/products/matcha.webp"
-    },
-    {
-        id: 8,
-        name: "artisan coffee beans",
-        price: 1800,
-        category: "lifestyle",
-        description: "Specialty artisan coffee beans",
-        image: "assets/products/coffee.png"
-    },
-        {
-        id: 5,
-        name: "imported champagne",
-        price: 8500,
-        category: "luxury",
-        description: "Finest imported champagne",
-        image: "assets/products/Champagne.png"
-    },
-];
+// Product data loaded from FastAPI backend
+const API_BASE_URL = 'http://127.0.0.1:8000';
+let products = [];
+
+async function fetchProducts() {
+    const response = await fetch(`${API_BASE_URL}/api/products`);
+    if (!response.ok) {
+        throw new Error('Failed to load products');
+    }
+    products = await response.json();
+    return products;
+}
+
+async function searchProducts(query) {
+    const response = await fetch(
+        `${API_BASE_URL}/api/products/search?q=${encodeURIComponent(query)}`
+    );
+    if (!response.ok) {
+        return [];
+    }
+    return response.json();
+}
+
+async function fetchProductById(productId) {
+    const response = await fetch(`${API_BASE_URL}/api/products/${productId}`);
+    if (!response.ok) {
+        return null;
+    }
+    return response.json();
+}
 
 // Shopping cart
 let cart = [];
@@ -120,8 +75,15 @@ const commandVariations = {
 };
 
 // Initialize the page
-document.addEventListener('DOMContentLoaded', () => {
-    loadProducts();
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        await fetchProducts();
+        loadProducts();
+    } catch (error) {
+        console.error(error);
+        productGrid.innerHTML = '<p>Unable to load products. Is the backend running?</p>';
+    }
+
     updateCartCount();
     
     // Load cart from localStorage if available
@@ -169,6 +131,18 @@ function loadProducts() {
         button.addEventListener('click', (e) => {
             const productId = parseInt(e.target.getAttribute('data-id'));
             addToCart(productId);
+        });
+    });
+
+    document.querySelectorAll('.view-details').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            const productId = parseInt(e.target.closest('.product-card').querySelector('.add-to-cart').getAttribute('data-id'));
+            const product = await fetchProductById(productId);
+            if (product) {
+                showFeedback(`${formatProductName(product.name)}: ${product.description} (₹${product.price.toLocaleString()})`);
+            } else {
+                showFeedback('Product details not found');
+            }
         });
     });
 }
@@ -456,12 +430,12 @@ function initVoiceRecognition() {
             logCommand(`Error: ${errorMessage}`);
         };
         
-        recognition.onresult = (event) => {
+        recognition.onresult = async (event) => {
             const last = event.results.length - 1;
             const transcript = event.results[last][0].transcript.toLowerCase();
             
             logCommand(`Heard: ${transcript}`);
-            processVoiceCommand(transcript);
+            await processVoiceCommand(transcript);
         };
         
         // Start/stop listening button
@@ -503,20 +477,20 @@ function stopListening() {
 }
 
 // Process voice commands
-function processVoiceCommand(command) {
+async function processVoiceCommand(command) {
     const normalized = normalizeCommand(command);
     logCommand(`Normalized: ${normalized}`);
     
     // Add to cart
     if (isCommand(normalized, 'add') && isCommand(normalized, 'cart')) {
         const product = extractProduct(normalized);
-        addProductByVoice(product);
+        await addProductByVoice(product);
     }
     
     // Remove from cart
     else if (isCommand(normalized, 'remove') && isCommand(normalized, 'cart')) {
         const product = extractProduct(normalized);
-        removeProductByVoice(product);
+        await removeProductByVoice(product);
     }
     
     // Check cart
@@ -614,8 +588,8 @@ function extractProduct(command) {
 }
 
 // Add product to cart by voice
-function addProductByVoice(productName) {
-    const matchedProduct = matchProduct(productName);
+async function addProductByVoice(productName) {
+    const matchedProduct = await matchProduct(productName);
     
     if (matchedProduct) {
         addToCart(matchedProduct.id);
@@ -627,8 +601,8 @@ function addProductByVoice(productName) {
 }
 
 // Remove product from cart by voice
-function removeProductByVoice(productName) {
-    const matchedProduct = matchProduct(productName);
+async function removeProductByVoice(productName) {
+    const matchedProduct = await matchProduct(productName);
     
     if (matchedProduct) {
         const cartItem = cart.find(item => item.id === matchedProduct.id);
@@ -644,36 +618,10 @@ function removeProductByVoice(productName) {
     }
 }
 
-// Match spoken product name to actual product
-function matchProduct(productName) {
-    // 1. Direct match
-    const directMatch = products.find(p => p.name === productName);
-    if (directMatch) return directMatch;
-    
-    // 2. Check similar names
-    for (const product of products) {
-        if (productSimilarWords[product.name] && productSimilarWords[product.name].includes(productName)) {
-            return product;
-        }
-    }
-    
-    // 3. Phonetic similarity
-    for (const product of products) {
-        const productWords = product.name.split(' ');
-        if (productWords.some(word => word.startsWith(productName) || 
-            productWords.some(word => productName.startsWith(word)))) {
-            return product;
-        }
-    }
-    
-    // 4. Partial match
-    for (const product of products) {
-        if (product.name.includes(productName) || productName.includes(product.name)) {
-            return product;
-        }
-    }
-    
-    return null;
+// Match spoken product name via FastAPI search
+async function matchProduct(productName) {
+    const results = await searchProducts(productName);
+    return results.length > 0 ? results[0] : null;
 }
 
 // Show cart contents by voice
