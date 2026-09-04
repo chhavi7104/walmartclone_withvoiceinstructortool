@@ -20,5 +20,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+@app.get("/")
+def root():
+    return {
+        "message": "VocalCart API is running",
+        "docs": "/docs"
+    }
 
 app.include_router(products_router)
