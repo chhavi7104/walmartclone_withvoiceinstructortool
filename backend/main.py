@@ -2,10 +2,13 @@ import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from pathlib import Path
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from backend.database.session import init_db
 from backend.routes.cart import router as cart_router
 from backend.routes.products import router as products_router
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 app = FastAPI(title="VocalCart API")
 
@@ -40,12 +43,10 @@ def startup() -> None:
     init_db()
 
 
-@app.get("/")
-def root():
-    return {
-        "message": "VocalCart API is running",
-        "docs": "/docs"
-    }
+@app.get("/", include_in_schema=False)
+def serve_frontend():
+    return FileResponse(BASE_DIR / "index.html")
 
 app.include_router(products_router)
 app.include_router(cart_router)
+app.mount("/", StaticFiles(directory=BASE_DIR, html=True), name="frontend")
