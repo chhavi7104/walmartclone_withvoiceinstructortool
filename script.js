@@ -1,6 +1,43 @@
-// Product data loaded from FastAPI backend
-const API_BASE_URL = 'http://127.0.0.1:8000';
+// Product and cart data are loaded from the FastAPI backend.
+const API_BASE_URL = (window.VOCALCART_API_BASE_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
+const SESSION_STORAGE_KEY = 'vocalCartSessionId';
+const sessionId = getOrCreateSessionId();
 let products = [];
+let cart = [];
+let cartSummary = { total_quantity: 0, subtotal: 0, total: 0 };
+
+function getOrCreateSessionId() {
+    let id = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!id) {
+        id = window.crypto && window.crypto.randomUUID
+            ? window.crypto.randomUUID()
+            : `${Date.now()}-${Math.random()}`;
+        localStorage.setItem(SESSION_STORAGE_KEY, id);
+    }
+    return id;
+}
+
+async function apiRequest(path, options = {}) {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Session-ID': sessionId,
+            ...(options.headers || {})
+        }
+    });
+    if (!response.ok) {
+        let detail = '';
+        try {
+            const body = await response.json();
+            detail = body.detail || '';
+        } catch (_) {
+            detail = '';
+        }
+        throw new Error(detail || 'Cart service is unavailable');
+    }
+    return response.json();
+}
 
 async function fetchProducts() {
     const response = await fetch(`${API_BASE_URL}/api/products`);
@@ -28,9 +65,6 @@ async function fetchProductById(productId) {
     }
     return response.json();
 }
-
-// Shopping cart
-let cart = [];
 
 // DOM Elements
 const productGrid = document.getElementById('product-grid');
@@ -78,6 +112,7 @@ const commandVariations = {
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         await fetchProducts();
+        await refreshCart(false);
         loadProducts();
     } catch (error) {
         console.error(error);
@@ -85,13 +120,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     updateCartCount();
-    
-    // Load cart from localStorage if available
-    const savedCart = localStorage.getItem('luxeCart');
-    if (savedCart) {
-        cart = JSON.parse(savedCart);
-        updateCartCount();
-    }
     
     // Initialize voice recognition if available
     initVoiceRecognition();
@@ -154,62 +182,79 @@ function formatProductName(name) {
         .join(' ');
 }
 
-// Add product to cart
-function addToCart(productId) {
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
-    
-    const existingItem = cart.find(item => item.id === productId);
-    
-    if (existingItem) {
-        existingItem.quantity += 1;
-    } else {
-        cart.push({
-            id: productId,
-            name: product.name,
-            price: product.price,
-            quantity: 1,
-            category: product.category
-        });
+// Refresh the browser state from the session-scoped backend cart.
+async function refreshCart(showError = true) {
+    try {
+        const data = await apiRequest('/api/cart');
+        cart = data.items.map(item => ({
+            id: item.product_id,
+            itemId: item.id,
+            quantity: item.quantity,
+            ...item.product,
+            line_total: item.line_total
+        }));
+        cartSummary = data;
+        updateCartCount();
+        if (cartModal.style.display === 'flex') renderCartItems();
+        return data;
+    } catch (error) {
+        cart = [];
+        cartSummary = { total_quantity: 0, subtotal: 0, total: 0 };
+        updateCartCount();
+        if (showError) showFeedback('Unable to load your cart. Please try again.');
+        return null;
     }
-    
-    updateCartCount();
-    saveCart();
-    showFeedback(`${formatProductName(product.name)} added to cart`);
 }
 
-// Remove product from cart
-function removeFromCart(productId) {
-    const productIndex = cart.findIndex(item => item.id === productId);
-    
-    if (productIndex !== -1) {
-        const product = cart[productIndex];
-        
-        if (product.quantity > 1) {
-            product.quantity -= 1;
+// Add product to the backend cart.
+async function addToCart(productId) {
+    const product = products.find(p => p.id === productId);
+    if (!product) {
+        showFeedback('Product not found');
+        return false;
+    }
+
+    try {
+        await apiRequest('/api/cart/items', {
+            method: 'POST',
+            body: JSON.stringify({ product_id: productId, quantity: 1 })
+        });
+        await refreshCart(false);
+        showFeedback(`${formatProductName(product.name)} added to cart`);
+        return true;
+    } catch (error) {
+        showFeedback('Unable to add this product to your cart.');
+        return false;
+    }
+}
+
+// Decrease a product quantity by one.
+async function removeFromCart(productId) {
+    const item = cart.find(cartItem => cartItem.id === productId);
+    if (!item) {
+        showFeedback('That product is not in your cart');
+        return;
+    }
+
+    try {
+        if (item.quantity === 1) {
+            await apiRequest(`/api/cart/items/${item.itemId}`, { method: 'DELETE' });
         } else {
-            cart.splice(productIndex, 1);
+            await apiRequest(`/api/cart/items/${item.itemId}`, {
+                method: 'PUT',
+                body: JSON.stringify({ quantity: item.quantity - 1 })
+            });
         }
-        
-        updateCartCount();
-        saveCart();
-        showFeedback(`${formatProductName(product.name)} removed from cart`);
-        
-        if (cartModal.style.display === 'flex') {
-            renderCartItems();
-        }
+        await refreshCart(false);
+        showFeedback(`${formatProductName(item.name)} removed from cart`);
+    } catch (error) {
+        showFeedback('Unable to update your cart.');
     }
 }
 
 // Update cart count display
 function updateCartCount() {
-    const count = cart.reduce((total, item) => total + item.quantity, 0);
-    cartCount.textContent = count;
-}
-
-// Save cart to localStorage
-function saveCart() {
-    localStorage.setItem('luxeCart', JSON.stringify(cart));
+    cartCount.textContent = cartSummary.total_quantity;
 }
 
 // Show feedback message
@@ -238,39 +283,36 @@ function renderCartItems() {
     if (cart.length === 0) {
         cartItems.innerHTML = '<p>Your cart is empty</p>';
         cartTotalAmount.textContent = '₹0';
+        const quantityElement = document.getElementById('cart-total-quantity');
+        if (quantityElement) quantityElement.textContent = '0 items';
         return;
     }
     
-    let total = 0;
-    
     cart.forEach(item => {
-        const product = products.find(p => p.id === item.id);
-        if (!product) return;
-        
-        total += product.price * item.quantity;
-        
         const cartItem = document.createElement('div');
         cartItem.className = 'cart-item';
         cartItem.innerHTML = `
             <div class="cart-item-image">
-                <img src="${product.image}" alt="${product.name}">
+                <img src="${item.image}" alt="${item.name}">
             </div>
             <div class="cart-item-details">
-                <h4 class="cart-item-title">${formatProductName(product.name)}</h4>
-                <p class="cart-item-category">${product.category}</p>
-                <p class="cart-item-price">₹${product.price.toLocaleString()}</p>
+                <h4 class="cart-item-title">${formatProductName(item.name)}</h4>
+                <p class="cart-item-category">${item.category}</p>
+                <p class="cart-item-price">₹${item.price.toLocaleString()}</p>
                 <div class="cart-item-quantity">
-                    <button class="quantity-btn decrease" data-id="${product.id}">-</button>
+                    <button class="quantity-btn decrease" data-id="${item.id}">-</button>
                     <span class="quantity-value">${item.quantity}</span>
-                    <button class="quantity-btn increase" data-id="${product.id}">+</button>
+                    <button class="quantity-btn increase" data-id="${item.id}">+</button>
                 </div>
-                <button class="remove-item" data-id="${product.id}">Remove</button>
+                <button class="remove-item" data-id="${item.id}">Remove</button>
             </div>
         `;
         cartItems.appendChild(cartItem);
     });
     
-    cartTotalAmount.textContent = `₹${total.toLocaleString()}`;
+    cartTotalAmount.textContent = `₹${cartSummary.subtotal.toLocaleString()}`;
+    const quantityElement = document.getElementById('cart-total-quantity');
+    if (quantityElement) quantityElement.textContent = `${cartSummary.total_quantity} item${cartSummary.total_quantity === 1 ? '' : 's'}`;
     
     // Add event listeners to quantity buttons
     document.querySelectorAll('.decrease').forEach(button => {
@@ -296,20 +338,15 @@ function renderCartItems() {
 }
 
 // Remove item completely from cart
-function removeItemCompletely(productId) {
-    const productIndex = cart.findIndex(item => item.id === productId);
-    
-    if (productIndex !== -1) {
-        const product = cart[productIndex];
-        cart.splice(productIndex, 1);
-        
-        updateCartCount();
-        saveCart();
-        showFeedback(`${formatProductName(product.name)} removed from cart`);
-        
-        if (cartModal.style.display === 'flex') {
-            renderCartItems();
-        }
+async function removeItemCompletely(productId) {
+    const item = cart.find(cartItem => cartItem.id === productId);
+    if (!item) return;
+    try {
+        await apiRequest(`/api/cart/items/${item.itemId}`, { method: 'DELETE' });
+        await refreshCart(false);
+        showFeedback(`${formatProductName(item.name)} removed from cart`);
+    } catch (error) {
+        showFeedback('Unable to remove this product.');
     }
 }
 
@@ -320,6 +357,21 @@ categoryFilter.addEventListener('change', loadProducts);
 document.querySelector('.cart-icon').addEventListener('click', () => {
     cartModal.style.display = 'flex';
     renderCartItems();
+});
+
+document.getElementById('clear-cart-btn').addEventListener('click', async () => {
+    if (cart.length === 0) {
+        showFeedback('Your cart is empty');
+        return;
+    }
+    try {
+        await apiRequest('/api/cart', { method: 'DELETE' });
+        await refreshCart(false);
+        showFeedback('Your cart has been cleared');
+    } catch (error) {
+        showFeedback('Unable to clear your cart.');
+    }
+    refreshCart(false);
 });
 
 // Close cart modal
@@ -333,19 +385,8 @@ checkoutBtn.addEventListener('click', () => {
         showFeedback('Your cart is empty');
         return;
     }
-    
-    // In a real app, this would redirect to checkout page
     showFeedback('Proceeding to checkout');
     logCommand('Checkout initiated');
-    
-    // Clear cart after checkout
-    setTimeout(() => {
-        cart = [];
-        updateCartCount();
-        saveCart();
-        renderCartItems();
-        cartModal.style.display = 'none';
-    }, 2000);
 });
 
 // Voice shopping button
@@ -592,8 +633,10 @@ async function addProductByVoice(productName) {
     const matchedProduct = await matchProduct(productName);
     
     if (matchedProduct) {
-        addToCart(matchedProduct.id);
-        speakResponse(`Added ${formatProductName(matchedProduct.name)} to your cart`);
+        const added = await addToCart(matchedProduct.id);
+        if (added) {
+            speakResponse(`Added ${formatProductName(matchedProduct.name)} to your cart`);
+        }
     } else {
         const productNames = products.map(p => formatProductName(p.name)).join(', ');
         speakResponse(`Couldn't find ${productName}. Available products are: ${productNames}`);
@@ -608,7 +651,7 @@ async function removeProductByVoice(productName) {
         const cartItem = cart.find(item => item.id === matchedProduct.id);
         
         if (cartItem) {
-            removeFromCart(matchedProduct.id);
+            await removeFromCart(matchedProduct.id);
             speakResponse(`Removed ${formatProductName(matchedProduct.name)} from your cart`);
         } else {
             speakResponse(`${formatProductName(matchedProduct.name)} is not in your cart`);
@@ -625,37 +668,30 @@ async function matchProduct(productName) {
 }
 
 // Show cart contents by voice
-function showCartByVoice() {
+async function showCartByVoice() {
+    await refreshCart(false);
     if (cart.length === 0) {
         speakResponse('Your cart is empty');
         return;
     }
     
     let itemsList = '';
-    let total = 0;
-    
     cart.forEach(item => {
-        const product = products.find(p => p.id === item.id);
-        if (product) {
-            itemsList += `${item.quantity} ${formatProductName(product.name)}, `;
-            total += product.price * item.quantity;
-        }
+        itemsList += `${item.quantity} ${formatProductName(item.name)}, `;
     });
     
     itemsList = itemsList.slice(0, -2); // Remove trailing comma
-    speakResponse(`Your cart has: ${itemsList}. Total is ₹${total.toLocaleString()}`);
+    speakResponse(`Your cart has: ${itemsList}. Total is ₹${cartSummary.total.toLocaleString()}`);
 }
 
 // Checkout by voice
-function checkoutByVoice() {
+async function checkoutByVoice() {
+    await refreshCart(false);
     if (cart.length === 0) {
         speakResponse('Cannot checkout - your cart is empty');
         return;
     }
-    const subtotal = cart.reduce((sum, item) => {
-        const product = products.find(p => p.id === item.id);
-        return sum + (product ? product.price * item.quantity : 0);
-    }, 0);
+    const subtotal = cartSummary.subtotal;
     
     const tax = subtotal * 0.18; // 18% tax
     const total = subtotal + tax;
@@ -678,12 +714,6 @@ function checkoutByVoice() {
     if (cartModal) {
         cartModal.style.display = 'none';
     }
-    // Clear cart after checkout
-    setTimeout(() => {
-        cart = [];
-        updateCartCount();
-        saveCart();
-    }, 2000);
 }
 
 // List products by voice
@@ -808,10 +838,7 @@ function openPaymentPortal() {
     }
     
     // Calculate total amount
-    const total = cart.reduce((sum, item) => {
-        const product = products.find(p => p.id === item.id);
-        return sum + (product ? product.price * item.quantity : 0);
-    }, 0);
+    const total = cartSummary.total;
     
     // Update payment portal with cart total
     document.getElementById('payment-subtotal').textContent = `₹${total.toLocaleString()}`;
@@ -863,10 +890,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show payment modal when checkout is clicked
     document.getElementById('checkout-btn')?.addEventListener('click', function() {
         // Calculate and display totals
-        const subtotal = cart.reduce((sum, item) => {
-            const product = products.find(p => p.id === item.id);
-            return sum + (product ? product.price * item.quantity : 0);
-        }, 0);
+        const subtotal = cartSummary.subtotal;
         
         const tax = subtotal * 0.02; // 2% tax
         const total = subtotal + tax;
@@ -936,12 +960,18 @@ document.addEventListener('DOMContentLoaded', function() {
             payNowBtn.innerHTML = '<i class="fas fa-lock"></i> Pay Securely';
             payNowBtn.disabled = false;
             
-            // Clear cart after successful payment
-            cart = [];
-            updateCartCount();
-            saveCart();
+            clearCartAfterPayment();
         }, 1500); // 1.5 second delay to simulate processing
     });
+
+    async function clearCartAfterPayment() {
+        try {
+            await apiRequest('/api/cart', { method: 'DELETE' });
+            await refreshCart(false);
+        } catch (error) {
+            showFeedback('Payment completed, but the cart could not be cleared.');
+        }
+    }
     
     // Continue shopping
     continueBtn?.addEventListener('click', function() {
