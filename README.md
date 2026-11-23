@@ -4,7 +4,6 @@
 
 ---
 
-
 ## ✨ Features
 
 - 🎙️ **Voice-Activated Search**  
